@@ -1,4 +1,4 @@
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, field
 from typing import List, Literal, Optional, Tuple, Union
 
 
@@ -6,7 +6,7 @@ __all__ = ["_unpack", "ParamInitConfig", "PosEncodingConfig", "NormlizationConfi
 
 
 def _unpack(config) -> Tuple:
-    return tuple(getattr(config, field.name) for field in fields(config))
+    return tuple(getattr(config, f.name) for f in fields(config))
 
 
 # TODO: consider merge config validation checking function into dataclass.
@@ -47,23 +47,9 @@ class InputEncoderConfig:
     activation: Literal["relu", "gelu", "geglu"] = "relu"
     norm_first: bool = True
     bias: bool = False
-    norm_config: NormlizationConfig = NormlizationConfig(
-        method="InstanceNorm",
-        eps=1e-5,
-        elementwise_affine=True,
-        affine=False,
-    )
-    init_config: ParamInitConfig = ParamInitConfig(
-        method="xavier",
-        gain=1e-2,
-        diagonal_weight=1e-4,
-    )
-    pos_config: PosEncodingConfig = PosEncodingConfig(
-        method="RoPE",
-        dim=1,
-        min_freq=1 / 64,
-        scale=1,
-    )
+    norm_config: NormlizationConfig = field(default_factory=NormlizationConfig)
+    init_config: ParamInitConfig = field(default_factory=ParamInitConfig)
+    pos_config: PosEncodingConfig = field(default_factory=PosEncodingConfig)
 
 
 @dataclass
@@ -87,23 +73,9 @@ class CrossAttentionEncoderConfig:
     norm_first: bool = True
     bias: bool = False
     residual: bool = True
-    norm_config: NormlizationConfig = NormlizationConfig(
-        method="InstanceNorm",
-        eps=1e-5,
-        elementwise_affine=True,
-        affine=False,
-    )
-    init_config: ParamInitConfig = ParamInitConfig(
-        method="xavier",
-        gain=1e-2,
-        diagonal_weight=1e-4,
-    )
-    pos_config: PosEncodingConfig = PosEncodingConfig(
-        method="RoPE",
-        dim=1,
-        min_freq=1 / 64,
-        scale=1,
-    )
+    norm_config: NormlizationConfig = field(default_factory=NormlizationConfig)
+    init_config: ParamInitConfig = field(default_factory=ParamInitConfig)
+    pos_config: PosEncodingConfig = field(default_factory=PosEncodingConfig)
 
 
 @dataclass

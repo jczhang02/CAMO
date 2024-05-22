@@ -1,4 +1,3 @@
-from .check_net_nan import check_net_grad, check_net_value
 from .instantiators import instantiate_callbacks, instantiate_loggers
 from .logging_utils import log_hyperparameters
 from .pylogger import RankedLogger
@@ -16,6 +15,4 @@ __all__ = [
     "extras",
     "get_metric_value",
     "task_wrapper",
-    "check_net_value",
-    "check_net_grad",
 ]
