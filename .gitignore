@@ -1,4 +1,4 @@
-data/BURGERS/*
+data/BURGERS/burgers_data_R10.mat
 logs/*
 outputs/*
 __pycache__
