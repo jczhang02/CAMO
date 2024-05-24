@@ -41,7 +41,10 @@ reportMissingImports = true
 reportMissingTypeStubs = false
 pythonVersion = "3.11"
 pythonPlatform = "Linux"
-executionEnvironments = [{ root = "src" }]
+executionEnvironments = [
+  { root = ".", extraPaths = ["src/utils" ]},
+]
+
 
 [tool.ruff]
 line-length = 119

@@ -123,14 +123,16 @@ RUN /opt/conda/bin/mamba init bash \
 	&& mamba activate CAMO \
 	&& mamba clean -afy
 
+ENV PDM_NO_CACHE 
+
 RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
 	&& cd /root/CAMO \
 	&& . ~/.bashrc \
 	&& mamba activate CAMO \
 	&& mamba install pdm --yes \
 	&& pdm config pypi.url https://pypi.tuna.tsinghua.edu.cn/simple \
-	&& pdm self update \
-	&& pdm install \
+	&& pdm --no-cache self update \
+	&& pdm --no-cache install \
 	&& pdm cache clear \
 	&& rm -rf /root/CAMO
 
