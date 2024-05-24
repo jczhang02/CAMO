@@ -1,0 +1,14 @@
+deb https://mirrors.shanhe.com/ubuntu/ focal main restricted universe multiverse
+deb-src https://mirrors.shanhe.com/ubuntu/ focal main restricted universe multiverse
+deb https://mirrors.shanhe.com/ubuntu/ focal-security main restricted universe multiverse
+deb-src https://mirrors.shanhe.com/ubuntu/ focal-security main restricted universe multiverse
+
+deb https://mirrors.shanhe.com/ubuntu/ focal-updates main restricted universe multiverse
+deb-src https://mirrors.shanhe.com/ubuntu/ focal-updates main restricted universe multiverse
+
+deb https://mirrors.shanhe.com/ubuntu/ focal-backports main restricted universe multiverse
+deb-src https://mirrors.shanhe.com/ubuntu/ focal-backports main restricted universe multiverse
+
+## Not recommended
+# deb http://mirrors.shanhe.com/ubuntu/ focal-proposed main restricted universe multiverse
+# deb-src http://mirrors.shanhe.com/ubuntu/ focal-proposed main restricted universe multiverse

@@ -155,11 +155,12 @@ RUN mkdir -p /tmp/unison \
 RUN echo "root:111111" | chpasswd \
 	&& echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-# # Slurm
-# FROM unison AS slurm
+FROM unison AS shanhe
 
-# Ray
-# TODO: add ray support, seem it only need to add `ray` and `hydra-ray-launcher` package via pdm.
+# RUN  "10.251.102.1 mirrors.shanhe.com" >> /etc/hosts
+COPY ./files/condarc_shanhe /root/.condarc
+COPY ./files/pip_shanhe.conf /root/.pip/pip.conf
+COPY ./files/sources_shanhe.list /etc/apt/sources.list
 
 # Entrypoint
 CMD ["/usr/sbin/sshd", "-D"]
