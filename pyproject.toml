@@ -23,6 +23,10 @@ license = { text = "MIT" }
 [project.optional-dependencies]
 utils = ["pre-commit>=3.7.1", "pytest>=8.2.1", "bcolors==1.0.2"]
 slurm = ["hydra-submitit-launcher>=1.2.0", "hydra-slurm-rich-launcher>=1.0.0"]
+ray = [
+    "ray>=2.23.0",
+    "hydra-ray-launcher>=1.2.1",
+]
 [tool.pdm]
 distribution = false
 
