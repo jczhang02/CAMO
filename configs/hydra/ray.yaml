@@ -4,6 +4,7 @@
 defaults:
   - override hydra_logging: colorlog
   - override job_logging: colorlog
+  - override launcher: ray
 
 # output directory, generated dynamically on each run
 run:
@@ -21,9 +22,10 @@ job_logging:
 launcher:
   ray:
     init:
-      num_gpus: 1
+      num_gpus: 2
       local_mode: False
-      address: 0.0.0.0:6379
+      dashboard_host: "0.0.0.0"
+      dashboard_port: "8265"
     remote:
       num_gpus: 1
       max_calls: 1
