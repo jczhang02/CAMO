@@ -9,14 +9,10 @@ FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04 AS base_image
 ENV DEBIAN_FRONTEND=noninteractive \
 	LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
 
-# set mirrors for apt
+# set mirrors for apt, pip and conda
 COPY ./files/sources.list /etc/apt/sources.list
-
-# RUN apt-get update \
-# 	&& apt-get upgrade -y \
-# 	&& apt-get autoremove -y \
-# 	&& apt-get clean \
-# 	&& rm -rf /var/lib/apt/lists/*
+COPY ./files/pip.conf /root/.pip/pip.conf
+COPY ./files/condarc_tsinghua /root/.condarc
 
 # common
 FROM base_image AS common
@@ -76,13 +72,9 @@ RUN curl -L -o ~/miniforge3.sh https://github.com/conda-forge/miniforge/releases
 	&& ~/miniforge3.sh -b -p /opt/conda \
 	&& rm ~/miniforge3.sh
 
-COPY ./files/pip.conf /root/.pip/pip.conf
 
 RUN  pip install --upgrade pip --no-cache-dir \
 	&& ln -s /opt/conda/bin/pip /usr/local/bin/pip3
-
-# set mirrors for conda
-COPY ./files/condarc_tsinghua /root/.condarc
 
 RUN apt-get update \
 	&& apt-get install -y  --allow-downgrades --allow-change-held-packages --no-install-recommends \
@@ -139,7 +131,8 @@ RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
 	&& pdm config pypi.url https://pypi.tuna.tsinghua.edu.cn/simple \
 	&& pdm self update \
 	&& pdm install \
-	&& pdm cache clear
+	&& pdm cache clear \
+	&& rm -rf /root/CAMO
 
 RUN rm -rf /root/.cache | true
 
@@ -155,6 +148,9 @@ RUN mkdir -p /tmp/unison \
 RUN echo "root:111111" | chpasswd \
 	&& echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
+RUN rm -rf /root/.cache | true
+
+# Shanhe
 FROM unison AS shanhe
 
 # RUN  "10.251.102.1 mirrors.shanhe.com" >> /etc/hosts
