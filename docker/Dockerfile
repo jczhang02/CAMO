@@ -5,26 +5,18 @@ ARG PYTHON_SHORT_VERSION=3.11
 ARG MINIFORGE3_VERSION=23.11.0-0
 ARG PYTORCH_VERSION=2.3.0
 
-FROM nvidia/cuda:12.1.0-base-ubuntu20.04 AS base_image
-
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04 AS base_image
 ENV DEBIAN_FRONTEND=noninteractive \
 	LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
 
-RUN printf "\
-	deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\n\
-	# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\n\
-	deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n\
-	# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n\
-	deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n\
-	# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n\
-	deb http://security.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse\n\
-	# deb-src http://security.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse\n\
-	" > /etc/apt/sources.list \
-	&& apt-get update \
-	&& apt-get upgrade -y \
-	&& apt-get autoremove -y \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+# set mirrors for apt
+COPY ./files/sources.list /etc/apt/sources.list
+
+# RUN apt-get update \
+# 	&& apt-get upgrade -y \
+# 	&& apt-get autoremove -y \
+# 	&& apt-get clean \
+# 	&& rm -rf /var/lib/apt/lists/*
 
 # common
 FROM base_image AS common
@@ -52,40 +44,18 @@ ENV PATH="/opt/conda/bin:${PATH}"
 # 5.2 is G3 EC2 instance, 7.5 is G4*, 7.0 is p3*, 8.0 is P4*, 8.6 is G5* and 9.0 is P5*
 ENV TORCH_CUDA_ARCH_LIST="5.2;7.0+PTX;7.5;8.0;8.6;9.0"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
-ENV CUDNN_VERSION=8.9.2.26
-ENV NCCL_VERSION=2.21.5
-ENV EFA_VERSION=1.32.0
-ENV GDRCOPY_VERSION=2.4.1
 
 ENV CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
-ENV OPEN_MPI_PATH=/opt/openmpi
-
-ENV DGLBACKEND=pytorch
-ENV MANUAL_BUILD=0
-ENV DLC_CONTAINER_TYPE=training
 
 RUN apt-get update \
-	&& apt-get -y upgrade --only-upgrade systemd \
-	&& apt-get install -y --allow-change-held-packages --no-install-recommends \
+	&& apt-get install -y \
 	build-essential \
 	ca-certificates \
+	net-tools \
 	cmake \
-	libcudnn8=$CUDNN_VERSION-1+cuda12.1 \
-	libcudnn8-dev=$CUDNN_VERSION-1+cuda12.1 \
 	curl \
 	git \
 	jq \
-	libcurl4-openssl-dev \
-	libglib2.0-0 \
-	libgl1-mesa-glx \
-	libsm6 \
-	libxext6 \
-	libxrender-dev \
-	libgomp1 \
-	libibverbs-dev \
-	libnuma1 \
-	libnuma-dev \
-	libssl1.1 \
 	libssl-dev \
 	libtool \
 	openssl \
@@ -93,16 +63,11 @@ RUN apt-get update \
 	unzip \
 	vim \
 	wget \
-	zlib1g-dev \
-	autoconf \
-	pkg-config \
-	check \
-	libsubunit0 \
-	libsubunit-dev \
-	# ninja is needed for apex to speed up the build
-	ninja-build \
+	tzdata \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& apt-get clean
+
+ENV TZ=Asia/Shanghai
 
 # for conda ssl verification
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
@@ -111,23 +76,13 @@ RUN curl -L -o ~/miniforge3.sh https://github.com/conda-forge/miniforge/releases
 	&& ~/miniforge3.sh -b -p /opt/conda \
 	&& rm ~/miniforge3.sh
 
-RUN pip config set global.index-url http://mirrors.aliyun.com/pypi/simple \
-	&& pip install --upgrade pip --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+COPY ./files/pip.conf /root/.pip/pip.conf
+
+RUN  pip install --upgrade pip --no-cache-dir \
 	&& ln -s /opt/conda/bin/pip /usr/local/bin/pip3
 
-# Create conda env
-RUN /opt/conda/bin/mamba init bash \
-	&& . ~/.bashrc \
-	&& mamba create -n main python==${PYTHON_VERSION} --yes \
-	&& mamba activate main
-
-RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
-	&& cd /root/CAMO \
-	&& . ~/.bashrc \
-	&& mamba activate main \
-	&& mamba install pdm --yes \
-	&& pdm self update \
-	&& pdm install
+# set mirrors for conda
+COPY ./files/condarc_tsinghua /root/.condarc
 
 RUN apt-get update \
 	&& apt-get install -y  --allow-downgrades --allow-change-held-packages --no-install-recommends \
@@ -138,8 +93,6 @@ RUN apt-get update \
 	&& mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& apt-get clean
-
-
 
 # Configure OpenSSH so that nodes can communicate with each other
 RUN mkdir -p /var/run/sshd && \
@@ -156,17 +109,57 @@ RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pk
 # Removing the cache as it is needed for security verification
 RUN rm -rf /root/.cache | true
 
+FROM common AS ec2
 
+ARG PYTHON
+ARG PYTHON_SHORT_VERSION
+ARG CUDA_HOME
+ARG TORCH_CUDA_ARCH_LIST
 
-
-
-
-
-
-# UNISON
-
-# Neovim
+WORKDIR /
 
 # Zsh
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.0/zsh-in-docker.sh)" -- \
+	-p https://github.com/zsh-users/zsh-autosuggestions \
+	-p https://github.com/zsh-users/zsh-completions
 
-# Slurm
+# Create conda env
+RUN /opt/conda/bin/mamba init bash \
+	&& /opt/conda/bin/mamba init zsh \
+	&& . ~/.bashrc \
+	&& mamba create -n CAMO python==${PYTHON_VERSION} --yes \
+	&& mamba activate CAMO \
+	&& mamba clean -afy
+
+RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
+	&& cd /root/CAMO \
+	&& . ~/.bashrc \
+	&& mamba activate CAMO \
+	&& mamba install pdm --yes \
+	&& pdm config pypi.url https://pypi.tuna.tsinghua.edu.cn/simple \
+	&& pdm self update \
+	&& pdm install \
+	&& pdm cache clear
+
+RUN rm -rf /root/.cache | true
+
+# UNISON
+FROM ec2 AS unison
+ARG UNISON_VERSION=2.53.3
+
+RUN mkdir -p /tmp/unison \
+	&& curl -L https://github.com/bcpierce00/unison/releases/download/v2.53.3/unison-2.53.3+ocaml4.08-ubuntu-x86_64.tar.gz | tar zxv -C /tmp/unison \
+	&& cp /tmp/unison/bin/* /usr/local/bin/ \
+	&& rm -rf /tmp/unison
+
+RUN echo "root:111111" | chpasswd \
+	&& echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
+# # Slurm
+# FROM unison AS slurm
+
+# Ray
+# TODO: add ray support, seem it only need to add `ray` and `hydra-ray-launcher` package via pdm.
+
+# Entrypoint
+CMD ["/usr/sbin/sshd", "-D"]

@@ -2,9 +2,7 @@
 name = "CAMO"
 version = "0.2.0"
 description = "Operator Learning for Partial Differential Equations with Attention Mechanism"
-authors = [
-    {name = "Chengrui Zhang", email = "jczhang@live.it"},
-]
+authors = [{ name = "Chengrui Zhang", email = "jczhang@live.it" }]
 dependencies = [
     "torch==2.3.0",
     "lightning>=2.2.4",
@@ -19,44 +17,27 @@ dependencies = [
 ]
 requires-python = "==3.11.*"
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
 
 
 [project.optional-dependencies]
-utils = [
-    "pre-commit>=3.7.1",
-    "pytest>=8.2.1",
-    "bcolors==1.0.2",
-]
-slurm = [
-    "hydra-submitit-launcher>=1.2.0",
-    "hydra-slurm-rich-launcher>=1.0.0",
-]
+utils = ["pre-commit>=3.7.1", "pytest>=8.2.1", "bcolors==1.0.2"]
+slurm = ["hydra-submitit-launcher>=1.2.0", "hydra-slurm-rich-launcher>=1.0.0"]
 [tool.pdm]
 distribution = false
 
 [tool.pyright]
 root = ["src"]
-include = [
-    "src"
-]
-exclude = [
-    "**/node_modules",
-    "**/__pycache__",
-]
+include = ["src"]
+exclude = ["**/node_modules", "**/__pycache__"]
 ignore = ["src/oldstuff"]
 defineConstant = { DEBUG = true }
 stubPath = "src/stubs"
-
 reportMissingImports = true
 reportMissingTypeStubs = false
-
 pythonVersion = "3.11"
 pythonPlatform = "Linux"
-
-executionEnvironments = [
-  { root = "src" }
-]
+executionEnvironments = [{ root = "src" }]
 
 [tool.ruff]
 line-length = 119
