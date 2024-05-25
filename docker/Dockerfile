@@ -123,7 +123,7 @@ RUN /opt/conda/bin/mamba init bash \
 	&& mamba activate CAMO \
 	&& mamba clean -afy
 
-ENV PDM_NO_CACHE 
+ENV PDM_NO_CACHE 0
 
 RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
 	&& cd /root/CAMO \
@@ -131,7 +131,7 @@ RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
 	&& mamba activate CAMO \
 	&& mamba install pdm --yes \
 	&& pdm config pypi.url https://pypi.tuna.tsinghua.edu.cn/simple \
-	&& pdm --no-cache self update \
+	&& pdm self update \
 	&& pdm --no-cache install \
 	&& pdm cache clear \
 	&& rm -rf /root/CAMO
@@ -155,7 +155,7 @@ RUN rm -rf /root/.cache | true
 # Shanhe
 FROM unison AS shanhe
 
-# RUN  "10.251.102.1 mirrors.shanhe.com" >> /etc/hosts
+# RUN echo "10.251.102.1 mirrors.shanhe.com" >> /etc/hosts
 COPY ./files/condarc_shanhe /root/.condarc
 COPY ./files/pip_shanhe.conf /root/.pip/pip.conf
 COPY ./files/sources_shanhe.list /etc/apt/sources.list
