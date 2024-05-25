@@ -25,11 +25,13 @@ git clone https://github.com/jczhang02/OperatorFormer
 cd OperatorFormer
 
 # [OPTIONAL] create conda environment
-conda create -n $NAME python=3.9
+conda create -n $NAME python=3.11
 conda activate $NAME
 
 # install requirements
-pip install -r requirements.txt
+conda install pdm
+pdm self update
+pdm --no-cache install
 ```
 
 ## Dataset
