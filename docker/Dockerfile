@@ -110,7 +110,7 @@ RUN echo "root:111111" | chpasswd \
 RUN rm -rf /root/.cache | true
 
 # CAMO, used for install python packages
-FROM unison AS CAMO
+FROM unison AS camo
 
 ARG PYTHON
 ARG PYTHON_SHORT_VERSION
@@ -143,7 +143,7 @@ RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
 RUN rm -rf /root/.cache | true
 
 # Shanhe
-FROM CAMO AS shanhe
+FROM camo AS shanhe
 
 # RUN echo "10.251.102.1 mirrors.shanhe.com" >> /etc/hosts
 COPY ./files/condarc_shanhe /root/.condarc
