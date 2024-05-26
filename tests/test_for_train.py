@@ -16,7 +16,7 @@ from src.models.components.dataclass_config import (
     CrossAttentionEncoderConfig,
     PropagatorDecoderConfig,
 )
-from src.data.components.burges import BURGERS
+from src.data.components.burgers import BURGERS
 import hydra
 from src.models.components.loss import SimpleOperatorLearningL2Loss
 

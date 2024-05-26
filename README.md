@@ -62,7 +62,7 @@ python src/train.py experiment=experiment_name.yaml
 python src/train.py experiment=thinkpad_test
 
 # E.g. Simple test on gpu
-python src/train.py experiment=shanhe_burges
+python src/train.py experiment=shanhe_burgers
 ```
 
 You can override any parameter from command line like this

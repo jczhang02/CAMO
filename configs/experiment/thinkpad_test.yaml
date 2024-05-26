@@ -4,7 +4,7 @@
 # python train.py experiment=example
 
 defaults:
-  - override /data: burges
+  - override /data: burgers
   - override /model: operatorformer
   - override /callbacks: default
   - override /trainer: cpu

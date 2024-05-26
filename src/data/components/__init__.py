@@ -1,4 +1,4 @@
-from .burges import BURGERS
+from .burgers import BURGERS
 
 
 __all__ = ["BURGERS"]
