@@ -42,7 +42,8 @@ ENV TORCH_CUDA_ARCH_LIST="5.2;7.0+PTX;7.5;8.0;8.6;9.0"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
 
-RUN apt-get update \
+RUN chmod 1777 /tmp \
+	&& apt-get update \
 	&& apt-get install -y \
 	build-essential \
 	ca-certificates \
@@ -142,6 +143,24 @@ RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
 
 RUN rm -rf /root/.cache | true
 
+# Slurm
+# FROM camo AS slurm
+
+# RUN apt-get update \
+# 	&& apt-get install -y slurmd slurmctld slurm-wlm  \
+# 	&& rm -rf /var/lib/apt/lists/* \
+# 	&& apt-get clean \
+# 	&& mkdir -p /opt/slurm \
+# 	&& chmod -Rf 777 /opt/slurm \
+# 	&& touch /opt/slurm/acct \
+# 	&& touch /opt/slurm/jobcomp 
+
+# COPY ./files/slurm.conf /etc/slurm-llnl/slurm.conf
+
+# RUN service slurmctld restart \
+# 	&& service munge restart \
+# 	&& service slurmd restart
+
 # Shanhe
 FROM camo AS shanhe
 
@@ -151,6 +170,7 @@ COPY ./files/pip_shanhe.conf /root/.pip/pip.conf
 COPY ./files/sources_shanhe.list /etc/apt/sources.list
 RUN pdm config pypi.url https://mirrors.shanhe.com/simple \
 	&& pdm config pypi.verify_ssl False
+
 
 # Entrypoint
 CMD ["/usr/sbin/sshd", "-D"]
