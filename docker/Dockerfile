@@ -168,7 +168,9 @@ FROM camo AS shanhe
 COPY ./files/condarc_shanhe /root/.condarc
 COPY ./files/pip_shanhe.conf /root/.pip/pip.conf
 COPY ./files/sources_shanhe.list /etc/apt/sources.list
-RUN pdm config pypi.url https://mirrors.shanhe.com/simple \
+RUN . ~/.bashrc \
+	&& mamba activate CAMO \
+	&& pdm config pypi.url https://mirrors.shanhe.com/simple \
 	&& pdm config pypi.verify_ssl False
 
 
