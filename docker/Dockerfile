@@ -51,6 +51,7 @@ RUN chmod 1777 /tmp \
 	cmake \
 	curl \
 	git \
+	direnv \
 	jq \
 	libssl-dev \
 	libtool \

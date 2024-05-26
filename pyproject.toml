@@ -30,11 +30,7 @@ utils = [
 slurm = [
     "hydra-submitit-launcher>=1.2.0",
 ]
-ray = [
-    "ray[all]>=2.23.0",
-    "hydra-ray-launcher>=1.2.1",
-]
-aiop = [
+training_vis = [
     "aim>=3.19.3",
     "tensorboard>=2.16.2",
 ]
