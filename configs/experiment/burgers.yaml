@@ -6,7 +6,7 @@ defaults:
   - override /callbacks: default
   - override /trainer: gpu
   - override /logger: aim
-  - override /hydra: submitit
+  - override /hydra: ray
 
 task_name: "Burgers_1D"
 
@@ -40,3 +40,12 @@ logger:
   aim:
     experiment: ${task_name}
     run_name: "exp_${hydra:job.num}"
+
+hydra:
+  launcher:
+    ray:
+      init:
+        num_gpus: 2
+        local_mode: False
+        dashboard_host: "0.0.0.0"
+        dashboard_port: "8265"
