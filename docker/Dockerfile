@@ -104,9 +104,7 @@ ARG UNISON_VERSION=2.53.3
 RUN mkdir -p /tmp/unison \
 	&& curl -L https://github.com/bcpierce00/unison/releases/download/v2.53.3/unison-2.53.3+ocaml4.08-ubuntu-x86_64.tar.gz | tar zxv -C /tmp/unison \
 	&& cp /tmp/unison/bin/* /usr/local/bin/ \
-	&& rm -rf /tmp/unison
-
-RUN echo "root:111111" | chpasswd \
+	&& rm -rf /tmp/unison \
 	&& echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 RUN rm -rf /root/.cache | true
@@ -144,23 +142,6 @@ RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
 
 RUN rm -rf /root/.cache | true
 
-# Slurm
-# FROM camo AS slurm
-
-# RUN apt-get update \
-# 	&& apt-get install -y slurmd slurmctld slurm-wlm  \
-# 	&& rm -rf /var/lib/apt/lists/* \
-# 	&& apt-get clean \
-# 	&& mkdir -p /opt/slurm \
-# 	&& chmod -Rf 777 /opt/slurm \
-# 	&& touch /opt/slurm/acct \
-# 	&& touch /opt/slurm/jobcomp 
-
-# COPY ./files/slurm.conf /etc/slurm-llnl/slurm.conf
-
-# RUN service slurmctld restart \
-# 	&& service munge restart \
-# 	&& service slurmd restart
 
 # Shanhe
 FROM camo AS shanhe
