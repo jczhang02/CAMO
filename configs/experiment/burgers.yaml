@@ -6,7 +6,7 @@ defaults:
   - override /callbacks: default
   - override /trainer: gpu
   - override /logger: aim
-  - override /hydra: submitit
+  - override /hydra: slurm
 
 task_name: "Burgers_1D"
 
