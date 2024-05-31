@@ -35,8 +35,8 @@ ENV PYTHONUNBUFFERED=1
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 ENV LD_LIBRARY_PATH="/opt/conda/lib:${LD_LIBRARY_PATH}"
 ENV PYTHONIOENCODING=UTF-8
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 ENV PATH="/opt/conda/bin:${PATH}"
 ENV TORCH_CUDA_ARCH_LIST="5.2;7.0+PTX;7.5;8.0;8.6;9.0"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
@@ -46,6 +46,7 @@ RUN chmod 1777 /tmp \
 	&& apt-get update \
 	&& apt-get install -y \
 	build-essential \
+	bash-completion \
 	ca-certificates \
 	net-tools \
 	cmake \
@@ -61,8 +62,28 @@ RUN chmod 1777 /tmp \
 	vim \
 	wget \
 	tzdata \
+	locales \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& apt-get clean
+	&& apt-get clean \
+	&& echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+	&& locale-gen
+
+
+RUN git clone --depth 1 https://github.com/Bash-it/bash-it.git /tmp/bash_it \
+	&& cp -R /tmp/bash_it /root/.bash_it \
+	&& cp -R /tmp/bash_it ~/.bash_it \
+	&& /root/.bash_it/install.sh --silent \
+	&& echo "source /usr/share/bash-completion/bash_completion" >> /root/.bashrc \
+	&& git clone --depth 1 https://github.com/sstephenson/bats.git /tmp/bats \
+	&& /tmp/bats/install.sh /usr/local\
+	&& rm -rf /tmp/* \
+	&& /bin/bash -c "source /root/.bashrc"
+
+
+RUN /root/.bash_it/install.sh --silent -f \
+	&& echo "source /usr/share/bash-completion/bash_completion" >> /root/.bashrc \
+	&& /bin/bash -c "source /root/.bashrc"
+
 
 ENV TZ=Asia/Shanghai
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
@@ -116,32 +137,62 @@ ARG PYTHON
 ARG PYTHON_SHORT_VERSION
 ARG CUDA_HOME
 ARG TORCH_CUDA_ARCH_LIST
+ARG PYTHON_VERSION=3.11.9
 
 WORKDIR /
 
-# Create conda env
-RUN /opt/conda/bin/mamba init bash \
-	&& /opt/conda/bin/mamba init zsh \
-	&& . ~/.bashrc \
-	&& mamba create -n CAMO python==${PYTHON_VERSION} --yes \
-	&& mamba activate CAMO \
-	&& mamba clean -afy
 
+# Create conda env
+# RUN /opt/conda/bin/mamba init bash \
+# 	&& /bin/bash -c "source /root/.bashrc" \
+# 	&& . /root/.bashrc \
+# 	&& mamba create -n CAMO python==${PYTHON_VERSION} --yes \
+# 	&& source activate CAMO \
+# 	&& mamba clean -afy
+ENV PATH="/opt/conda/envs/CAMO/bin:${PATH}"
 ENV PDM_NO_CACHE=0
 
-RUN git clone https://github.com/jczhang02/CAMO /root/CAMO \
+RUN <<EOT bash
+	mamba create -n CAMO python==${PYTHON_VERSION} --yes
+	echo "source activate CAMO" >> /root/.bashrc
+	mamba clean -afy
+	git clone https://github.com/jczhang02/CAMO /root/CAMO \
 	&& cd /root/CAMO \
-	&& . ~/.bashrc \
-	&& mamba activate CAMO \
+	&& /bin/bash -c "source /root/.bashrc" \
+	&& source activate CAMO \
 	&& mamba install pdm --yes \
 	&& pdm config pypi.url https://pypi.tuna.tsinghua.edu.cn/simple \
 	&& pdm self update \
 	&& pdm --no-cache install \
 	&& pdm cache clear \
 	&& rm -rf /root/CAMO
+	rm -rf /root/.cache | true
+EOT
 
-RUN rm -rf /root/.cache | true
+# Slurm-build
+# FROM camo AS slurm_build
+# ENV VERSION=23.11.4
 
+# RUN <<EOT bash
+# 	apt-get update
+# 	apt-get install -y \
+# 		build-essential \
+# 		libssl-dev \
+# 		mysql-client \
+# 		mysql-server \
+# 		libmysql++-dev \
+# 		ffmpeg \
+# 		cmake
+# EOT
+
+# RUN mkdir -p /tmp/slurm-build
+# WORKDIR /tmp/slurm-build
+
+# RUN <<EOT bash
+# 	wget https://download.schedmd.com/slurm/slurm-$VERSION.tar.bz2 
+# 	tar xvf slurm-$VERSION.tar.bz2 && \
+#     cd slurm-$VERSION && \
+# EOT
 
 # Shanhe
 FROM camo AS shanhe
@@ -150,11 +201,13 @@ FROM camo AS shanhe
 COPY ./files/condarc_shanhe /root/.condarc
 COPY ./files/pip_shanhe.conf /root/.pip/pip.conf
 COPY ./files/sources_shanhe.list /etc/apt/sources.list
-RUN . ~/.bashrc \
-	&& mamba activate CAMO \
-	&& pdm config pypi.url https://mirrors.shanhe.com/simple \
-	&& pdm config pypi.verify_ssl False
 
+RUN <<EOT bash
+	pdm config pypi.url https://mirrors.shanhe.com/simple
+	pdm config pypi.verify_ssl False
+EOT
 
 # Entrypoint
-CMD ["/usr/sbin/sshd", "-D"]
+ENTRYPOINT ["/usr/sbin/sshd", "-D"]
+
+
