@@ -66,6 +66,7 @@ line-length = 119
 
 [tool.ruff.lint]
 select = ["C", "E", "F", "I", "W"]
+ignore = ["E402"]
 
 [tool.ruff.lint.per-file-ignores]
 
