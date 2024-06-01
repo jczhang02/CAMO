@@ -77,7 +77,7 @@ class StandardMultiHeadAttention(nn.Module):
             The calculated attention value z.
         """
         qkv_projed: Tensor = self.qkv_proj(src)
-        qkv_projed_sep: Tuple[Tensor, ...] = torch.chunk(qkv_projed, chunks=3, dim=-1)
+        qkv_projed_sep: List[Tensor] = cast(List[Tensor], torch.chunk(qkv_projed, chunks=3, dim=-1))
 
         q: Tensor
         k: Tensor
