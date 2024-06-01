@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Literal, Optional, Tuple
+from typing import List, Literal, Optional, cast
 
 import torch
 from einops import rearrange, repeat
