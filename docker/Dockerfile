@@ -6,7 +6,7 @@
 ARG PYTHON=python3
 ARG PYTHON_VERSION=3.11.9
 ARG PYTHON_SHORT_VERSION=3.11
-ARG MINIFORGE3_VERSION=23.11.0-0
+ARG MINIFORGE3_VERSION=24.3.0-0
 
 # Shanhe A100-40GB-SXM is compatiable with cuda-11.7.1
 FROM nvidia/cuda:11.7.1-cudnn8-devel-ubuntu20.04 AS base_image
@@ -90,7 +90,9 @@ ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 RUN curl -L -o ~/miniforge3.sh https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE3_VERSION}/Miniforge3-${MINIFORGE3_VERSION}-Linux-x86_64.sh \
 	&& chmod +x ~/miniforge3.sh \
 	&& ~/miniforge3.sh -b -p /opt/conda \
-	&& rm ~/miniforge3.sh
+	&& rm ~/miniforge3.sh \
+	&& /opt/conda/bin/conda init bash \
+	&& /opt/conda/bin/mamba init bash
 
 RUN  pip install --upgrade pip --no-cache-dir \
 	&& ln -s /opt/conda/bin/pip /usr/local/bin/pip3
@@ -149,12 +151,12 @@ WORKDIR /
 # 	&& mamba create -n CAMO python==${PYTHON_VERSION} --yes \
 # 	&& source activate CAMO \
 # 	&& mamba clean -afy
-ENV PATH="/opt/conda/envs/CAMO/bin:${PATH}"
+ENV PATH="/opt/conda/bin/:/opt/conda/envs/CAMO/bin:${PATH}"
 ENV PDM_NO_CACHE=0
 
 RUN <<EOT bash
 	mamba create -n CAMO python==${PYTHON_VERSION} --yes
-	echo "source activate CAMO" >> /root/.bashrc
+	echo "conda activate CAMO" >> /root/.bashrc
 	mamba clean -afy
 	git clone https://github.com/jczhang02/CAMO /root/CAMO \
 	&& cd /root/CAMO \
@@ -170,32 +172,39 @@ RUN <<EOT bash
 EOT
 
 # Slurm-build
-# FROM camo AS slurm_build
-# ENV VERSION=23.11.4
+FROM camo AS slurm_build
 
-# RUN <<EOT bash
-# 	apt-get update
-# 	apt-get install -y \
-# 		build-essential \
-# 		libssl-dev \
-# 		mysql-client \
-# 		mysql-server \
-# 		libmysql++-dev \
-# 		ffmpeg \
-# 		cmake
-# EOT
+RUN <<EOT bash
+	apt-get update
+	apt-get install -y munge mysql-server slurm-wlm slurmdbd
+	service munge start
+	service mysql start
+	apt-get clean
+	rm -rf /var/lib/apt/lists/* 
+EOT
 
-# RUN mkdir -p /tmp/slurm-build
-# WORKDIR /tmp/slurm-build
+COPY ./files/mysql.cnf /etc/mysql/conf.d/mysql.cnf
+COPY ./files/slurmdbd.conf /etc/slurm-llnl/slurmdbd.conf
+COPY ./files/slurm.conf /etc/slurm-llnl/slurm.conf
+COPY ./files/gres.conf /etc/slurm-llnl/gres.conf
 
-# RUN <<EOT bash
-# 	wget https://download.schedmd.com/slurm/slurm-$VERSION.tar.bz2 
-# 	tar xvf slurm-$VERSION.tar.bz2 && \
-#     cd slurm-$VERSION && \
-# EOT
+RUN <<EOT bash
+	mysql < ./files/create_mysql.sql
+	service mysql restart
+	service slurmdbd start
+
+	mkdir /var/spool/slurmd
+	mkdir /var/spool/slurmctld
+
+	chmod -R 777 /var/spool/slurmd
+	chmod -R 777 /var/spool/slurmctld
+
+	service slurmctld start
+	service slurmd start
+EOT
 
 # Shanhe
-FROM camo AS shanhe
+FROM slurm_build AS shanhe
 
 # RUN echo "10.251.102.1 mirrors.shanhe.com" >> /etc/hosts
 COPY ./files/condarc_shanhe /root/.condarc
@@ -207,7 +216,17 @@ RUN <<EOT bash
 	pdm config pypi.verify_ssl False
 EOT
 
+# port needed
+# 6005: first
+# 6006: tensorboard
+# 6007: aim
+# 6008: other
+# 6009: other
+# 6817, 6818, 6819: slurm
+
+
 # Entrypoint
-ENTRYPOINT ["/usr/sbin/sshd", "-D"]
+COPY ./files/entrypoint.sh /root/entrypoint.sh
+ENTRYPOINT ["sh", "/root/entrypoint.sh"]
 
 
