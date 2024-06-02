@@ -1,4 +1,5 @@
 #!/bin/bash
+service munge restart
 service mysql start
 service slurmdbd start
 service slurmctld start
