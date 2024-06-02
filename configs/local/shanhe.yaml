@@ -6,7 +6,7 @@ defaults:
 hydra:
   launcher:
     gpus_per_task: 1
-    partition: LocalQ
+    partition: local
     array_parallelism: 256
     nodes: 1
     tasks_per_node: 2

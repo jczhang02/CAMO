@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=Burgers_1D_exps_lr_nhead
-#SBATCH --partition=LocalQ
+#SBATCH --partition=local
 #SBATCH --output=/zhangchrai23/logs/slurm_Burgers_1D.out
 
 # Evalution the impact of different settings of lr and nhead.
