@@ -6,20 +6,20 @@ defaults:
   - override /callbacks: default
   - override /trainer: gpu
   - override /logger: aim
-  - override /hydra: submitit
+  - override /hydra: slurm
 
-task_name: "Burgers_1D"
+task_name: "Optuna_Burgers_1D"
 
-tags: ["burgers1d"]
+tags: ["burgers1d", "optuna"]
 
 seed: 114514
 
 trainer:
-  min_epochs: 10000
-  max_epochs: 10000
-  check_val_every_n_epoch: 10
+  min_epochs: 1000
+  max_epochs: 1000
+  check_val_every_n_epoch: 1
   detect_anomaly: False
-  deterministic: False
+  deterministic: True
 
 model:
   optimizer:
