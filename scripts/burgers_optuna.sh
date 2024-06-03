@@ -7,6 +7,4 @@
 python src/train.py \
 	experiment=burgers_optuna \
 	trainer.deterministic=True \
-	hparams_search=burgers_optuna \
-	task_name="Optuna_Burgers" \
-	-m
+	task_name="Optuna_Burgers"
