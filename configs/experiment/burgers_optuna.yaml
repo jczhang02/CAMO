@@ -4,7 +4,7 @@ defaults:
   - override /data: burgers
   - override /model: operatorformer
   - override /callbacks: default
-  - override /trainer: gpu
+  - override /trainer: ddp
   - override /logger: aim
   - override /hydra: slurm
   - override /hydra/sweeper: optuna
@@ -57,7 +57,7 @@ hydra:
     name: ${task_name}
     partition: local
     max_num_timeout: 0
-    tasks_per_node: 1
+    tasks_per_node: 2
     timeout_min: 0
 
   sweeper:
