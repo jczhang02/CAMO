@@ -4,7 +4,7 @@ defaults:
   - override /data: burgers
   - override /model: operatorformer
   - override /callbacks: default
-  - override /trainer: ddp
+  - override /trainer: gpu
   - override /logger: aim
   - override /hydra: slurm
   - override /hydra/sweeper: optuna
@@ -52,6 +52,14 @@ optimized_metric: "val/relative_error_best"
 hydra:
   mode: "MULTIRUN" # set hydra to multirun by default if this config is attached
 
+  launcher:
+    submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+    name: ${task_name}
+    partition: local
+    max_num_timeout: 0
+    tasks_per_node: 1
+    timeout_min: 0
+
   sweeper:
     _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
 
@@ -60,7 +68,7 @@ hydra:
     storage: null
 
     # name of the study to persist optimization results
-    study_name: null
+    study_name: find_best_lr_bs_nhead_numlayers_activation
 
     # number of parallel workers
     n_jobs: 6
