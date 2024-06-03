@@ -27,13 +27,17 @@ hydra:
     study_name: null
 
     # number of parallel workers
-    n_jobs: 3
+    n_jobs: 6
+
+    max_failure_rate: 0.5
+
+    gc_after_trial: true
 
     # 'minimize' or 'maximize' the objective
     direction: minimize
 
     # total number of runs that will be executed
-    n_trials: 50
+    n_trials: 500
 
     # choose Optuna hyperparameter sampler
     # you can choose bayesian sampler (tpe), random search (without optimization), grid sampler, and others
