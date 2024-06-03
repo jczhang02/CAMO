@@ -4,7 +4,7 @@
 defaults:
   - override hydra_logging: colorlog
   - override job_logging: colorlog
-  - override launcher: slurm_rich
+  - override launcher: submitit_slurm
 
 # output directory, generated dynamically on each run
 run:
