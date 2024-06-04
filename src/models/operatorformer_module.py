@@ -4,7 +4,7 @@ import torch
 from lightning import LightningModule
 from torch import Tensor, nn
 from torchmetrics import MeanMetric, MinMetric
-from ..utils.check_net_nan import check_net_value_rich
+
 from .components import RelativeError, SimpleOperatorLearningL2Loss
 
 
