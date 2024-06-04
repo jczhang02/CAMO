@@ -13,10 +13,10 @@ from .decoder import PropagatorDecoder
 from .encoder import CrossAttentionEncoder, InputEncoder, QueryEncoder
 
 
-__all__ = ["OperatorFormer"]
+__all__ = ["CAMO"]
 
 
-class OperatorFormer(nn.Module):
+class CAMO(nn.Module):
     def __init__(
         self,
         input_encoder_config: InputEncoderConfig = InputEncoderConfig(),
@@ -24,7 +24,7 @@ class OperatorFormer(nn.Module):
         crossattention_encoder_config: CrossAttentionEncoderConfig = CrossAttentionEncoderConfig(),
         propagator_decoder_config: PropagatorDecoderConfig = PropagatorDecoderConfig(),
     ) -> None:
-        super(OperatorFormer, self).__init__()
+        super(CAMO, self).__init__()
 
         self.input_encoder = InputEncoder(*_unpack(input_encoder_config))
         self.query_encoder = QueryEncoder(*_unpack(query_encoder_config))

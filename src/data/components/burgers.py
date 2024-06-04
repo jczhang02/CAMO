@@ -82,7 +82,7 @@ class BURGERS(Dataset):
 
 
 if __name__ == "__main__":
-    test_dataset = BURGERS(root="/home/jc/dev/OperatorFormer/data/")
+    test_dataset = BURGERS(root="/home/jc/dev/CAMO/data/")
     print(f"length of test_dataset: {len(test_dataset)}")
 
     x, y, pos1, pos2 = test_dataset.__getitem__(1)

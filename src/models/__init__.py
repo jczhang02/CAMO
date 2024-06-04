@@ -1,4 +1,4 @@
-from .operatorformer_module import OperatorFormerModule
+from .CAMO_module import CAMOModule
 
 
-__all__ = ["OperatorFormerModule"]
+__all__ = ["CAMOModule"]

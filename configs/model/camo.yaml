@@ -1,4 +1,4 @@
-_target_: src.models.OperatorFormerModule
+_target_: src.models.CAMOModule
 
 optimizer:
   _target_: torch.optim.Adam
@@ -15,7 +15,7 @@ scheduler:
   final_div_factor: 1.0e4
 
 net:
-  _target_: src.models.components.OperatorFormer
+  _target_: src.models.components.CAMO
   input_encoder_config:
     _target_: src.models.components.dataclass_config.InputEncoderConfig
     attn_type: "fourier"

@@ -8,10 +8,10 @@ from torchmetrics import MeanMetric, MinMetric
 from .components import RelativeError, SimpleOperatorLearningL2Loss
 
 
-__all__ = ["OperatorFormerModule"]
+__all__ = ["CAMOModule"]
 
 
-class OperatorFormerModule(LightningModule):
+class CAMOModule(LightningModule):
     def __init__(
         self,
         net: nn.Module,

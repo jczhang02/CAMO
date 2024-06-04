@@ -21,8 +21,8 @@ Code for _Operator Learning for Partial Differential Equations with Attention Me
 
 ```bash
 # clone project
-git clone https://github.com/jczhang02/OperatorFormer
-cd OperatorFormer
+git clone https://github.com/jczhang02/CAMO
+cd CAMO
 
 # [OPTIONAL] create conda environment
 conda create -n $NAME python=3.11

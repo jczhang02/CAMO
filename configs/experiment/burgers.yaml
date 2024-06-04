@@ -2,7 +2,7 @@
 
 defaults:
   - override /data: burgers
-  - override /model: operatorformer
+  - override /model: camo
   - override /callbacks: default
   - override /trainer: gpu
   - override /logger: aim
