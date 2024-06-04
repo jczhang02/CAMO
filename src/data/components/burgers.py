@@ -40,6 +40,7 @@ class BURGERS(Dataset):
         )
         x_data: NDArray[np.float64] = raw_data["a"][:, ::subsampling_rate]
         x_data = x_data[:total_size, :]
+        print(x_data.shape)
         y_data: NDArray[np.float64] = raw_data["u"][:, ::subsampling_rate]
         y_data = y_data[:total_size, :]
 
@@ -85,8 +86,9 @@ if __name__ == "__main__":
     test_dataset = BURGERS(root="/home/jc/dev/CAMO/data/")
     print(f"length of test_dataset: {len(test_dataset)}")
 
-    x, y, pos1, pos2 = test_dataset.__getitem__(1)
-    print(x.shape)
-    print(y.shape)
-    print(pos1.shape)
-    print(pos2.shape)
+    x, y, pos1, pos2 = test_dataset.__getitem__(0)
+    # print(x.shape)
+    # print(y.shape)
+    # print(pos1.shape)
+    # print(pos2.shape)
+    print(x)

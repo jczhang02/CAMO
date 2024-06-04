@@ -58,9 +58,9 @@ class InputEncoder(nn.Module):
     def forward(self, x: Tensor, input_pos: Optional[Tensor] = None, mask: Optional[Tensor] = None) -> Tensor:
         ax_embedding: Tensor = self.in_embeddings(x)
         z: Tensor = self.encoder(ax_embedding, input_pos, mask)
-        out_embeddng: Tensor = self.out_embeddings(z)
+        out_embedding: Tensor = self.out_embeddings(z)
 
-        return out_embeddng
+        return out_embedding
 
 
 class QueryEncoder(nn.Module):
